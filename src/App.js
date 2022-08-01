@@ -7,40 +7,76 @@ import {
     View,
     Text,
     TouchableOpacity,
+    NativeModules,
+    Platform,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 
 // 是否暗黑模式，暂时不支持暗黑模式
 const isDarkMode = Appearance.getColorScheme() === 'dark' && false;
 console.log('isDarkMode：', isDarkMode);
-// 状态栏高度
-const statusBarHeight = StatusBar.currentHeight;
-console.log('statusBarHeight', statusBarHeight);
 
 // 主页面渲染
 class App extends React.Component {
     webview = React.createRef();
     state = {
         appInited: false,
+        statusBarHeight: 47,
+    };
+    getStatusBarHeight = () => {
+        // 状态栏高度
+        if (Platform.OS === 'ios') {
+            NativeModules.StatusBarManager.getHeight(e => {
+                this.setState(() => ({
+                    statusBarHeight: e.height || 47,
+                }));
+            });
+        } else {
+            this.setState(() => ({
+                statusBarHeight: StatusBar.currentHeight,
+            }));
+        }
     };
     onWebviewLoadEnd = data => {
         console.log('loaded');
         const jsCode = `
             const rnMsg = 'hello, webview!'
-            // alert(rnMsg) 
+            window.ReactNativeWebView.postMessage(rnMsg)
         `;
         this.webview.current.injectJavaScript(jsCode);
-        // setTimeout(() => {
-        //     this.handleAppInit();
-        // }, 5000);
+    };
+    onWebviewLoadError = e => {
+        // webview加载失败
+    };
+    onRenderProcessGone = e => {
+        // webview崩溃，适用于Android
+    };
+    onContentProcessDidTerminate = e => {
+        // webview进程终止，适用于ios，和上面那个webview崩溃类似
+    };
+    onWebviewMessage = e => {
+        // webview 中的js执行window.ReactNativeWebView.postMessage(string)时候，这里会接收到string
+        console.log('webview-msg:', e.nativeEvent.data);
+    };
+    onWebviewScroll = e => {
+        // webview 滚动时触发
+    };
+    onShouldStartLoadWithRequest = request => {
+        return true;
+        // 此处可以判断如何打开一个链接，比如打开其他app
+        return request.url.startsWith('https://reactnative.dev');
     };
     handleAppInit = () => {
-        console.log(1);
         this.setState(() => ({
             appInited: true,
         }));
     };
-
+    postMessageToWebview = message => {
+        this.webview.current.postMessage(message);
+    };
+    componentDidMount() {
+        this.getStatusBarHeight();
+    }
     render() {
         const {webappUrl, appInited} = this.state;
         return (
@@ -67,33 +103,50 @@ class App extends React.Component {
                     source={{
                         uri: 'https://baidu.com',
                     }}
+                    originWhitelist={['*', 'file://', 'https://*', 'http://*']}
+                    mediaPlaybackRequiresUserAction={false}
+                    javaScriptEnabled={true}
+                    scalesPageToFit={false}
+                    javaScriptCanOpenWindowsAutomatically={true}
+                    bounces={false}
+                    pullToRefreshEnabled={false}
+                    setBuiltInZoomControls={false}
+                    setDisplayZoomControls={false}
+                    mixedContentMode="always"
+                    allowingReadAccessToURL={'file://'}
+                    allowUniversalAccessFromFileURLs={true}
+                    allowFileAccessFromFileURLS={true}
+                    allowsBackForwardNavigationGestures={true} // 此属性可能不能拦截，可能需要自己实现
+                    allowFileAccess={true}
+                    cacheEnabled={true}
+                    saveFormDataDisabled={false}
+                    cacheMode={'LOAD_DEFAULT'}
+                    sharedCookiesEnabled={true}
+                    allowsLinkPreview={false}
+                    allowsFullscreenVideo={true}
+                    allowsInlineMediaPlayback={true}
+                    domStorageEnabled={true}
+                    thirdPartyCookiesEnabled={true}
+                    dataDetectorTypes="none"
+                    geolocationEnabled={true}
+                    textZoom={100}
+                    autoManageStatusBarEnabled={true}
+                    setSupportMultipleWindows={true}
+                    menuItems={[]}
+                    showsHorizontalScrollIndicator={false}
+                    showsVerticalScrollIndicator={false}
+                    applicationNameForUserAgent={'<freefire>'}
                     onLoadEnd={this.onWebviewLoadEnd}
-                    // originWhitelist={['https://*', 'http://*']}
-                    // originWhitelist={['*', 'file://', 'https://*', 'http://*']}
-                    // javaScriptEnabled={true}
-                    // scalesPageToFit={false}
-                    // mediaPlaybackRequiresUserAction={false}
-                    // javaScriptCanOpenWindowsAutomatically={true}
-                    // scrollEnabled={true}
-                    // bounces={false}
-                    // setBuiltInZoomControls={false}
-                    // mixedContentMode="always"
-                    // allowingReadAccessToURL={'file://'}
-                    // allowUniversalAccessFromFileURLs={true}
-                    // allowFileAccessFromFileURLS={true}
-                    // allowFileAccess={true}
-                    // cacheEnabled={true}
-                    // cacheMode={'LOAD_DEFAULT'}
-                    // allowsFullscreenVideo={true}
-                    // allowsInlineMediaPlayback={true}
-                    // domStorageEnabled={true}
-                    // thirdPartyCookiesEnabled={true}
-                    // textZoom={100}
-                    // setSupportMultipleWindows={true}
-                    // onShouldStartLoadWithRequest={
-                    //     this.onShouldStartLoadWithRequest
-                    // }
-                    // onNavigationStateChange={this.onNavigationStateChange}
+                    onError={this.onWebviewLoadError}
+                    onRenderProcessGone={this.onRenderProcessGone}
+                    onContentProcessDidTerminate={
+                        this.onContentProcessDidTerminate
+                    }
+                    onShouldStartLoadWithRequest={
+                        this.onShouldStartLoadWithRequest
+                    }
+                    onMessage={this.onWebviewMessage}
+                    onScroll={this.onWebviewScroll}
                 />
             </View>
         );
