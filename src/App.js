@@ -9,6 +9,8 @@ import {
     TouchableOpacity,
     NativeModules,
     Platform,
+    Linking,
+    BackHandler,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 
@@ -62,9 +64,17 @@ class App extends React.Component {
         // webview 滚动时触发
     };
     onShouldStartLoadWithRequest = request => {
-        return true;
-        // 此处可以判断如何打开一个链接，比如打开其他app
-        return request.url.startsWith('https://reactnative.dev');
+        if (
+            request.url.startsWith('https://') ||
+            request.url.startsWith('http://')
+        ) {
+            return true;
+        } else {
+            Linking.openURL(request.url).catch(e => {
+                console.log(e);
+            });
+            return false;
+        }
     };
     handleAppInit = () => {
         this.setState(() => ({
@@ -74,8 +84,21 @@ class App extends React.Component {
     postMessageToWebview = message => {
         this.webview.current.postMessage(message);
     };
+    handAndroidBackBtn = () => {
+        if (Platform.OS === 'android') {
+            BackHandler.addEventListener('hardwareBackPress', () => {
+                try {
+                    this.webview.current.goBack();
+                    return true;
+                } catch (error) {
+                    return false; // 退出
+                }
+            });
+        }
+    };
     componentDidMount() {
         this.getStatusBarHeight();
+        this.handAndroidBackBtn();
     }
     render() {
         const {webappUrl, appInited} = this.state;
@@ -180,6 +203,7 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         zIndex: 1,
+        marginTop: StatusBar.currentHeight,
     },
 });
 
