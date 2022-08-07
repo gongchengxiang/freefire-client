@@ -5824,6 +5824,16 @@
   "resolved" "https://registry.npmmirror.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.7.tgz"
   "version" "0.0.7"
 
+"react-native-splash-screen@^3.3.0":
+  "integrity" "sha512-rGjt6HkoSXxMqH4SQUJ1gnPQlPJV8+J47+4yhgTIan4bVvAwJhEeJH7wWt9hXSdH4+VfwTS0GTaflj1Tw83IhA=="
+  "resolved" "https://registry.npmmirror.com/react-native-splash-screen/-/react-native-splash-screen-3.3.0.tgz"
+  "version" "3.3.0"
+
+"react-native-system-navigation-bar@^1.0.5":
+  "integrity" "sha512-Xfp/S1lIIQODEmMe84vlGIMaQROhiMDM9TrhrgpTLAmjWLkCvjRHcjwpk3De2JNWObS+o3DVBvSNUUaVnFj8cg=="
+  "resolved" "https://registry.npmmirror.com/react-native-system-navigation-bar/-/react-native-system-navigation-bar-1.0.5.tgz"
+  "version" "1.0.5"
+
 "react-native-webview@^11.23.0":
   "integrity" "sha512-mGrgsMnYcQONvQy59xpBn87sKqkCsSkqIDRo+c2Ov4ISYl1j90wFBs+qViVJRWdoNHVuoCAZ4nZkJ65mhDpHhA=="
   "resolved" "https://registry.npmmirror.com/react-native-webview/-/react-native-webview-11.23.0.tgz"
@@ -5832,7 +5842,7 @@
     "escape-string-regexp" "2.0.0"
     "invariant" "2.2.4"
 
-"react-native@*", "react-native@0.69.3":
+"react-native@*", "react-native@>=0.57.0", "react-native@0.69.3":
   "integrity" "sha512-SyGkcoEUa/BkO+wKVnv4OsnLSNfUM5zLNXS3iT/3eXjKX91/FKBH/nfR9BE1c60X5LQe/P5QYqr6WPX3TRSQkA=="
   "resolved" "https://registry.npmmirror.com/react-native/-/react-native-0.69.3.tgz"
   "version" "0.69.3"

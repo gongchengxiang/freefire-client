@@ -11,8 +11,15 @@ import {
     Platform,
     Linking,
     BackHandler,
+    Keyboard,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
+import SplashScreen from 'react-native-splash-screen';
+import SystemNavigationBar from 'react-native-system-navigation-bar';
+
+//android 设置底部导航栏为透明色
+
+// SystemNavigationBar.navigationHide();
 
 // 是否暗黑模式，暂时不支持暗黑模式
 const isDarkMode = Appearance.getColorScheme() === 'dark' && false;
@@ -22,8 +29,11 @@ console.log('isDarkMode：', isDarkMode);
 class App extends React.Component {
     webview = React.createRef();
     state = {
+        advertisementInited: false,
         appInited: false,
         statusBarHeight: 47,
+        webviewAutoHeight:
+            Dimensions.get('window').height - StatusBar.currentHeight,
     };
     getStatusBarHeight = () => {
         // 状态栏高度
@@ -81,6 +91,12 @@ class App extends React.Component {
             appInited: true,
         }));
     };
+    toOtherPage = uri => {
+        this.setState(() => ({
+            appInited: true,
+            webviewUri: uri,
+        }));
+    };
     postMessageToWebview = message => {
         this.webview.current.postMessage(message);
     };
@@ -96,12 +112,52 @@ class App extends React.Component {
             });
         }
     };
+    handWebviewAutoHeight = () => {
+        //监听键盘弹出事件
+        Keyboard.addListener('keyboardDidShow', e => {
+            console.log(e);
+            this.setState(() => ({
+                webviewAutoHeight:
+                    Dimensions.get('window').height -
+                    e.endCoordinates.height -
+                    StatusBar.currentHeight,
+            }));
+        });
+        //监听键盘隐藏事件
+        Keyboard.addListener('keyboardDidHide', e => {
+            this.setState(() => ({
+                webviewAutoHeight:
+                    Dimensions.get('window').height -
+                    e.endCoordinates.height -
+                    StatusBar.currentHeight,
+            }));
+        });
+    };
+    setAndroidNavBarColor = color => {
+        return SystemNavigationBar.setNavigationColor(color || 'white');
+    };
+    setAndroidNavBarDisplayStatus = isShow => {
+        if (isShow) {
+            return SystemNavigationBar.navigationShow();
+        } else {
+            return SystemNavigationBar.navigationHide();
+        }
+    };
     componentDidMount() {
+        Keyboard.addListener('keyboardDidShow', e => {
+            console.log(e);
+        });
         this.getStatusBarHeight();
         this.handAndroidBackBtn();
+        this.handWebviewAutoHeight();
+        SystemNavigationBar.setNavigationColor('transparent');
+        setTimeout(() => {
+            SplashScreen.hide();
+        }, 1000);
     }
     render() {
-        const {webappUrl, appInited} = this.state;
+        const {advertisementInited, webviewUri, appInited, webviewAutoHeight} =
+            this.state;
         return (
             <View style={styles.appWrap}>
                 <StatusBar
@@ -109,22 +165,39 @@ class App extends React.Component {
                     translucent={true}
                     backgroundColor="transparent"
                 />
-
                 {/* 不显示webview的时候显示view，作为缓冲区 */}
                 {!appInited && (
-                    <View style={styles.indexView}>
+                    <View style={styles.advertisementView}>
                         <TouchableOpacity onPress={this.handleAppInit}>
-                            <Text>缓冲区，用于初始化显示内容</Text>
+                            <Text style={{marginBottom: 40}}>
+                                缓冲区，用于初始化(广告)
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() =>
+                                this.toOtherPage('https://www.bilibili.com/')
+                            }>
+                            <Text style={{marginBottom: 40}}>bilibili</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() =>
+                                this.toOtherPage(
+                                    'https://vant-contrib.gitee.io/vant/#/zh-CN',
+                                )
+                            }>
+                            <Text style={{marginBottom: 40}}>vant Form</Text>
                         </TouchableOpacity>
                     </View>
                 )}
-
                 {/* webview第一时间渲染，缩短渲染时间 */}
                 <WebView
-                    style={styles.webviewStyle}
+                    style={{
+                        ...styles.webviewStyle,
+                        height: webviewAutoHeight,
+                    }}
                     ref={this.webview}
                     source={{
-                        uri: 'https://baidu.com',
+                        uri: webviewUri || 'https://baidu.com',
                     }}
                     originWhitelist={['*', 'file://', 'https://*', 'http://*']}
                     mediaPlaybackRequiresUserAction={false}
@@ -159,6 +232,7 @@ class App extends React.Component {
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}
                     applicationNameForUserAgent={'<freefire>'}
+                    overScrollMode={'never'}
                     onLoadEnd={this.onWebviewLoadEnd}
                     onError={this.onWebviewLoadError}
                     onRenderProcessGone={this.onRenderProcessGone}
@@ -176,7 +250,9 @@ class App extends React.Component {
     }
 }
 
-const {height, width} = Dimensions.get('window');
+const {height, width} = Dimensions.get('screen');
+console.log(2, height);
+console.log(3, Dimensions.get('window').height);
 const styles = StyleSheet.create({
     appWrap: {
         width,
@@ -184,10 +260,11 @@ const styles = StyleSheet.create({
         position: 'relative',
         zIndex: 0,
     },
-    indexView: {
+    advertisementView: {
         width,
         height,
-        backgroundColor: 'red',
+        lineHeight: 60,
+        backgroundColor: '#00b8a9',
         justifyContent: 'center',
         alignItems: 'center',
         position: 'absolute',
@@ -197,7 +274,6 @@ const styles = StyleSheet.create({
     },
     webviewStyle: {
         width,
-        height,
         backgroundColor: 'white',
         position: 'absolute',
         top: 0,

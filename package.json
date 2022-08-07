@@ -6,12 +6,15 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios --simulator='iPhone 13 Pro Max'",
     "start": "react-native start",
+    "android-release": "cd android && ./gradlew assembleRelease",
     "test": "jest",
     "lint": "eslint ."
   },
   "dependencies": {
     "react": "18.0.0",
     "react-native": "0.69.3",
+    "react-native-splash-screen": "^3.3.0",
+    "react-native-system-navigation-bar": "^1.0.5",
     "react-native-webview": "^11.23.0"
   },
   "devDependencies": {
