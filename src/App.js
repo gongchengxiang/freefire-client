@@ -17,10 +17,6 @@ import {WebView} from 'react-native-webview';
 import SplashScreen from 'react-native-splash-screen';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 
-//android 设置底部导航栏为透明色
-
-// SystemNavigationBar.navigationHide();
-
 // 是否暗黑模式，暂时不支持暗黑模式
 const isDarkMode = Appearance.getColorScheme() === 'dark' && false;
 console.log('isDarkMode：', isDarkMode);
@@ -144,16 +140,19 @@ class App extends React.Component {
         }
     };
     componentDidMount() {
-        Keyboard.addListener('keyboardDidShow', e => {
-            console.log(e);
-        });
+        this.setAndroidNavBarColor('transparent');
         this.getStatusBarHeight();
         this.handAndroidBackBtn();
         this.handWebviewAutoHeight();
-        SystemNavigationBar.setNavigationColor('transparent');
+
         setTimeout(() => {
             SplashScreen.hide();
         }, 1000);
+    }
+    componentDidUpdate() {
+        if (this.state.appInited) {
+            this.setAndroidNavBarColor('white');
+        }
     }
     render() {
         const {advertisementInited, webviewUri, appInited, webviewAutoHeight} =
