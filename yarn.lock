@@ -5824,15 +5824,15 @@
   "resolved" "https://registry.npmmirror.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.0.7.tgz"
   "version" "0.0.7"
 
+"react-native-safe-area-context@^4.3.1":
+  "integrity" "sha512-cEr7fknJCToTrSyDCVNg0GRdRMhyLeQa2NZwVCuzEQcWedOw/59ExomjmzCE4rxrKXs6OJbyfNtFRNyewDaHuA=="
+  "resolved" "https://registry.npmmirror.com/react-native-safe-area-context/-/react-native-safe-area-context-4.3.1.tgz"
+  "version" "4.3.1"
+
 "react-native-splash-screen@^3.3.0":
   "integrity" "sha512-rGjt6HkoSXxMqH4SQUJ1gnPQlPJV8+J47+4yhgTIan4bVvAwJhEeJH7wWt9hXSdH4+VfwTS0GTaflj1Tw83IhA=="
   "resolved" "https://registry.npmmirror.com/react-native-splash-screen/-/react-native-splash-screen-3.3.0.tgz"
   "version" "3.3.0"
-
-"react-native-system-navigation-bar@^1.0.5":
-  "integrity" "sha512-Xfp/S1lIIQODEmMe84vlGIMaQROhiMDM9TrhrgpTLAmjWLkCvjRHcjwpk3De2JNWObS+o3DVBvSNUUaVnFj8cg=="
-  "resolved" "https://registry.npmmirror.com/react-native-system-navigation-bar/-/react-native-system-navigation-bar-1.0.5.tgz"
-  "version" "1.0.5"
 
 "react-native-webview@^11.23.0":
   "integrity" "sha512-mGrgsMnYcQONvQy59xpBn87sKqkCsSkqIDRo+c2Ov4ISYl1j90wFBs+qViVJRWdoNHVuoCAZ4nZkJ65mhDpHhA=="

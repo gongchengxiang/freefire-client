@@ -7,7 +7,7 @@
         <!--窗体透明，优化启动屏白屏-->
         <item name="android:windowIsTranslucent">true</item>
         <!--虚拟按键的导航栏颜色-->
-        <item name="android:navigationBarColor">@color/primary_light</item>
+        <item name="android:navigationBarColor">@color/transparent</item>
     </style>
 
 </resources>

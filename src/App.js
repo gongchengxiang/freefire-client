@@ -15,7 +15,18 @@ import {
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import SplashScreen from 'react-native-splash-screen';
-import SystemNavigationBar from 'react-native-system-navigation-bar';
+import {
+    SafeAreaProvider,
+    useSafeAreaInsets,
+} from 'react-native-safe-area-context';
+
+function SafeAreaConstant() {
+    const insets = useSafeAreaInsets();
+    console.log(11, insets);
+    return <View />;
+}
+
+//Retrieve safe area insets for root view
 
 // 是否暗黑模式，暂时不支持暗黑模式
 const isDarkMode = Appearance.getColorScheme() === 'dark' && false;
@@ -27,28 +38,26 @@ class App extends React.Component {
     state = {
         advertisementInited: false,
         appInited: false,
-        statusBarHeight: 47,
-        webviewAutoHeight:
-            Dimensions.get('window').height - StatusBar.currentHeight,
+        webviewAutoHeight: Dimensions.get('screen').height,
     };
     getStatusBarHeight = () => {
         // 状态栏高度
         if (Platform.OS === 'ios') {
             NativeModules.StatusBarManager.getHeight(e => {
-                this.setState(() => ({
-                    statusBarHeight: e.height || 47,
-                }));
+                // this.setState(() => ({
+                //     statusBarHeight: e.height || 47,
+                // }));
             });
         } else {
-            this.setState(() => ({
-                statusBarHeight: StatusBar.currentHeight,
-            }));
+            // this.setState(() => ({
+            //     statusBarHeight: StatusBar.currentHeight,
+            // }));
         }
     };
     onWebviewLoadEnd = data => {
         console.log('loaded');
         const jsCode = `
-            const rnMsg = 'hello, webview!'
+            var rnMsg = 'hello, webview!'
             window.ReactNativeWebView.postMessage(rnMsg)
         `;
         this.webview.current.injectJavaScript(jsCode);
@@ -111,147 +120,141 @@ class App extends React.Component {
     handWebviewAutoHeight = () => {
         //监听键盘弹出事件
         Keyboard.addListener('keyboardDidShow', e => {
-            console.log(e);
-            this.setState(() => ({
-                webviewAutoHeight:
-                    Dimensions.get('window').height -
-                    e.endCoordinates.height -
-                    StatusBar.currentHeight,
-            }));
+            this.setState(() => {
+                return {
+                    webviewAutoHeight:
+                        Dimensions.get('screen').height -
+                        e.endCoordinates.height,
+                };
+            });
         });
         //监听键盘隐藏事件
         Keyboard.addListener('keyboardDidHide', e => {
-            this.setState(() => ({
-                webviewAutoHeight:
-                    Dimensions.get('window').height -
-                    e.endCoordinates.height -
-                    StatusBar.currentHeight,
-            }));
+            this.setState(() => {
+                return {
+                    webviewAutoHeight: Dimensions.get('screen').height,
+                };
+            });
         });
     };
-    setAndroidNavBarColor = color => {
-        return SystemNavigationBar.setNavigationColor(color || 'white');
-    };
-    setAndroidNavBarDisplayStatus = isShow => {
-        if (isShow) {
-            return SystemNavigationBar.navigationShow();
-        } else {
-            return SystemNavigationBar.navigationHide();
-        }
-    };
     componentDidMount() {
-        this.setAndroidNavBarColor('transparent');
-        this.getStatusBarHeight();
         this.handAndroidBackBtn();
         this.handWebviewAutoHeight();
-
         setTimeout(() => {
             SplashScreen.hide();
-        }, 1000);
+        }, 100);
     }
     componentDidUpdate() {
         if (this.state.appInited) {
-            this.setAndroidNavBarColor('white');
         }
     }
     render() {
-        const {advertisementInited, webviewUri, appInited, webviewAutoHeight} =
-            this.state;
+        const {webviewUri, appInited, webviewAutoHeight} = this.state;
         return (
-            <View style={styles.appWrap}>
-                <StatusBar
-                    barStyle="dark-content"
-                    translucent={true}
-                    backgroundColor="transparent"
-                />
-                {/* 不显示webview的时候显示view，作为缓冲区 */}
-                {!appInited && (
-                    <View style={styles.advertisementView}>
-                        <TouchableOpacity onPress={this.handleAppInit}>
-                            <Text style={{marginBottom: 40}}>
-                                缓冲区，用于初始化(广告)
-                            </Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() =>
-                                this.toOtherPage('https://www.bilibili.com/')
-                            }>
-                            <Text style={{marginBottom: 40}}>bilibili</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() =>
-                                this.toOtherPage(
-                                    'https://vant-contrib.gitee.io/vant/#/zh-CN',
-                                )
-                            }>
-                            <Text style={{marginBottom: 40}}>vant Form</Text>
-                        </TouchableOpacity>
-                    </View>
-                )}
-                {/* webview第一时间渲染，缩短渲染时间 */}
-                <WebView
-                    style={{
-                        ...styles.webviewStyle,
-                        height: webviewAutoHeight,
-                    }}
-                    ref={this.webview}
-                    source={{
-                        uri: webviewUri || 'https://baidu.com',
-                    }}
-                    originWhitelist={['*', 'file://', 'https://*', 'http://*']}
-                    mediaPlaybackRequiresUserAction={false}
-                    javaScriptEnabled={true}
-                    scalesPageToFit={false}
-                    javaScriptCanOpenWindowsAutomatically={true}
-                    bounces={false}
-                    pullToRefreshEnabled={false}
-                    setBuiltInZoomControls={false}
-                    setDisplayZoomControls={false}
-                    mixedContentMode="always"
-                    allowingReadAccessToURL={'file://'}
-                    allowUniversalAccessFromFileURLs={true}
-                    allowFileAccessFromFileURLS={true}
-                    allowsBackForwardNavigationGestures={true} // 此属性可能不能拦截，可能需要自己实现
-                    allowFileAccess={true}
-                    cacheEnabled={true}
-                    saveFormDataDisabled={false}
-                    cacheMode={'LOAD_DEFAULT'}
-                    sharedCookiesEnabled={true}
-                    allowsLinkPreview={false}
-                    allowsFullscreenVideo={true}
-                    allowsInlineMediaPlayback={true}
-                    domStorageEnabled={true}
-                    thirdPartyCookiesEnabled={true}
-                    dataDetectorTypes="none"
-                    geolocationEnabled={true}
-                    textZoom={100}
-                    autoManageStatusBarEnabled={true}
-                    setSupportMultipleWindows={true}
-                    menuItems={[]}
-                    showsHorizontalScrollIndicator={false}
-                    showsVerticalScrollIndicator={false}
-                    applicationNameForUserAgent={'<freefire>'}
-                    overScrollMode={'never'}
-                    onLoadEnd={this.onWebviewLoadEnd}
-                    onError={this.onWebviewLoadError}
-                    onRenderProcessGone={this.onRenderProcessGone}
-                    onContentProcessDidTerminate={
-                        this.onContentProcessDidTerminate
-                    }
-                    onShouldStartLoadWithRequest={
-                        this.onShouldStartLoadWithRequest
-                    }
-                    onMessage={this.onWebviewMessage}
-                    onScroll={this.onWebviewScroll}
-                />
-            </View>
+            <SafeAreaProvider>
+                <SafeAreaConstant />
+                <View style={styles.appWrap}>
+                    <StatusBar
+                        barStyle="dark-content"
+                        translucent={true}
+                        backgroundColor="transparent"
+                    />
+                    {/* 不显示webview的时候显示view，作为缓冲区 */}
+                    {!appInited && (
+                        <View style={styles.advertisementView}>
+                            <TouchableOpacity onPress={this.handleAppInit}>
+                                <Text style={{marginBottom: 40}}>
+                                    缓冲区，用于初始化(广告)
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    this.toOtherPage(
+                                        'https://www.bilibili.com/',
+                                    )
+                                }>
+                                <Text style={{marginBottom: 40}}>bilibili</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() =>
+                                    this.toOtherPage(
+                                        'https://vant-contrib.gitee.io/vant/#/zh-CN',
+                                    )
+                                }>
+                                <Text style={{marginBottom: 40}}>
+                                    vant Form
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+                    {/* webview第一时间渲染，缩短渲染时间 */}
+                    <WebView
+                        style={{
+                            ...styles.webviewStyle,
+                            height: webviewAutoHeight,
+                        }}
+                        ref={this.webview}
+                        source={{
+                            uri: webviewUri || 'https://baidu.com',
+                        }}
+                        originWhitelist={[
+                            '*',
+                            'file://',
+                            'https://*',
+                            'http://*',
+                        ]}
+                        mediaPlaybackRequiresUserAction={false}
+                        javaScriptEnabled={true}
+                        scalesPageToFit={false}
+                        javaScriptCanOpenWindowsAutomatically={true}
+                        bounces={false}
+                        pullToRefreshEnabled={false}
+                        setBuiltInZoomControls={false}
+                        setDisplayZoomControls={false}
+                        mixedContentMode="always"
+                        allowingReadAccessToURL={'file://'}
+                        allowUniversalAccessFromFileURLs={true}
+                        allowFileAccessFromFileURLS={true}
+                        allowsBackForwardNavigationGestures={true} // 此属性可能不能拦截，可能需要自己实现
+                        allowFileAccess={true}
+                        cacheEnabled={true}
+                        saveFormDataDisabled={false}
+                        cacheMode={'LOAD_DEFAULT'}
+                        sharedCookiesEnabled={true}
+                        allowsLinkPreview={false}
+                        allowsFullscreenVideo={true}
+                        allowsInlineMediaPlayback={true}
+                        domStorageEnabled={true}
+                        thirdPartyCookiesEnabled={true}
+                        dataDetectorTypes="none"
+                        geolocationEnabled={true}
+                        textZoom={100}
+                        autoManageStatusBarEnabled={true}
+                        setSupportMultipleWindows={true}
+                        menuItems={[]}
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        applicationNameForUserAgent={'<freefire>'}
+                        overScrollMode={'never'}
+                        onLoadEnd={this.onWebviewLoadEnd}
+                        onError={this.onWebviewLoadError}
+                        onRenderProcessGone={this.onRenderProcessGone}
+                        onContentProcessDidTerminate={
+                            this.onContentProcessDidTerminate
+                        }
+                        onShouldStartLoadWithRequest={
+                            this.onShouldStartLoadWithRequest
+                        }
+                        onMessage={this.onWebviewMessage}
+                        onScroll={this.onWebviewScroll}
+                    />
+                </View>
+            </SafeAreaProvider>
         );
     }
 }
 
 const {height, width} = Dimensions.get('screen');
-console.log(2, height);
-console.log(3, Dimensions.get('window').height);
 const styles = StyleSheet.create({
     appWrap: {
         width,
@@ -278,7 +281,6 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         zIndex: 1,
-        marginTop: StatusBar.currentHeight,
     },
 });
 
