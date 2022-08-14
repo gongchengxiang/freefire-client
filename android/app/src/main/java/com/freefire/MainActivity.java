@@ -20,15 +20,16 @@ public class MainActivity extends ReactActivity {
         super.onCreate(savedInstanceState);
 
         // 设置底部导航栏样式
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
-        getWindow().clearFlags(
-            WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
-        );
+        // 下面注释的影响键盘响应，好像也没啥用，先注释了
+        // getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        // getWindow().clearFlags(
+        //     WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
+        // );
 
-        getWindow().setFlags(
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
-        );
+        // getWindow().setFlags(
+        //     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+        //     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        // );
 
         if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
             WindowManager.LayoutParams winParams = getWindow().getAttributes();
