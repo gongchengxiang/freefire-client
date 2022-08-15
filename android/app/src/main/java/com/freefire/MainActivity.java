@@ -20,7 +20,11 @@ public class MainActivity extends ReactActivity {
         super.onCreate(savedInstanceState);
 
         // 设置底部导航栏样式
-        // 下面注释的影响键盘响应，好像也没啥用，先注释了
+        // 下面注释的影响键盘响应，android bug
+        // 同样问题链接：https://www.jianshu.com/p/dc4cc4341e36 和 http://cn.voidcc.com/question/p-tfxewkni-boh.html 等等
+        // 网上流传的方法 AndroidBug5497Workaround，似乎不能用
+        // 总结：设置 FLAG_LAYOUT_NO_LIMITS 全屏后，adjustResize不起作用，软键盘 不能把页面撑上去，下面的input就看不到了
+
         // getWindow().clearFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
         // getWindow().clearFlags(
         //     WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION
