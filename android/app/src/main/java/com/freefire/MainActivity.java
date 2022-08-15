@@ -35,12 +35,12 @@ public class MainActivity extends ReactActivity {
         //     WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         // );
 
-        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
-            WindowManager.LayoutParams winParams = getWindow().getAttributes();
-            int bit = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
-            winParams.flags |= bit;
-            getWindow().setAttributes(winParams);
-        }
+        // if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 21) {
+        //     WindowManager.LayoutParams winParams = getWindow().getAttributes();
+        //     int bit = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+        //     winParams.flags |= bit;
+        //     getWindow().setAttributes(winParams);
+        // }
         if (Build.VERSION.SDK_INT >= 19) {
             int visibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
             visibility = visibility | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
