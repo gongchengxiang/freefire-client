@@ -3,21 +3,20 @@ package com.freefire;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.ReactRootView;
+import com.zackratos.ultimatebarx.ultimatebarx.java.UltimateBarX;
+
 import android.os.Bundle;
 import org.devio.rn.splashscreen.SplashScreen;
-import android.os.Build;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
+// import android.os.Build;
+// import android.view.View;
+// import android.view.Window;
+// import android.view.WindowManager;
 
 public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // 启动屏
         SplashScreen.show(this, true);
-
-        // created
-        super.onCreate(savedInstanceState);
 
         // 设置底部导航栏样式
         // 下面注释的影响键盘响应，android bug
@@ -41,16 +40,23 @@ public class MainActivity extends ReactActivity {
         //     winParams.flags |= bit;
         //     getWindow().setAttributes(winParams);
         // }
-        if (Build.VERSION.SDK_INT >= 19) {
-            int visibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
-            visibility = visibility | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-            getWindow().getDecorView().setSystemUiVisibility(visibility);
-        }
-        if (Build.VERSION.SDK_INT >= 21) {
-            getWindow().setNavigationBarColor(0); // 0是颜色，react-native的processColor可以将颜色转为数字
-        }
-       
-        
+        // if (Build.VERSION.SDK_INT >= 19) {
+        //     int visibility = View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+        //     visibility = visibility | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+        //     getWindow().getDecorView().setSystemUiVisibility(visibility);
+        // }
+        // if (Build.VERSION.SDK_INT >= 21) {
+        //     getWindow().setNavigationBarColor(0); // 0是颜色，react-native的processColor可以将颜色转为数字
+        // }
+        // 因为上述备注的bug，采用一个android插件来实现底部导航栏透明且不占布局位置
+        UltimateBarX.statusBar(this).fitWindow(false).colorRes(0).apply();
+        UltimateBarX.navigationBar(this).fitWindow(false).light(true).colorRes(0).apply();
+
+        // created
+        super.onCreate(savedInstanceState);
+
+        // other
+
     }
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule

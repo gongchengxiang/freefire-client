@@ -267,6 +267,8 @@ dependencies {
     // 启动屏
     implementation project(':react-native-splash-screen')
 
+    implementation 'com.gitee.zackratos:UltimateBarX:0.8.0'
+
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}") {
         exclude group:'com.facebook.fbjni'
     }
