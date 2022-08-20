@@ -12,6 +12,7 @@ import {
     Linking,
     BackHandler,
     Keyboard,
+    KeyboardAvoidingView,
 } from 'react-native';
 import {WebView} from 'react-native-webview';
 import SplashScreen from 'react-native-splash-screen';
@@ -23,7 +24,7 @@ import {
 function SafeAreaConstant() {
     const insets = useSafeAreaInsets();
     console.log(11, insets);
-    return <View />;
+    return null;
 }
 
 //Retrieve safe area insets for root view
@@ -38,7 +39,6 @@ class App extends React.Component {
     state = {
         advertisementInited: false,
         appInited: false,
-        webviewAutoHeight: Dimensions.get('screen').height,
     };
     getStatusBarHeight = () => {
         // 状态栏高度
@@ -117,29 +117,29 @@ class App extends React.Component {
             });
         }
     };
-    handWebviewAutoHeight = () => {
-        //监听键盘弹出事件
-        Keyboard.addListener('keyboardDidShow', e => {
-            this.setState(() => {
-                return {
-                    webviewAutoHeight:
-                        Dimensions.get('screen').height -
-                        e.endCoordinates.height,
-                };
-            });
-        });
-        //监听键盘隐藏事件
-        Keyboard.addListener('keyboardDidHide', e => {
-            this.setState(() => {
-                return {
-                    webviewAutoHeight: Dimensions.get('screen').height,
-                };
-            });
-        });
-    };
+    // handWebviewAutoHeight = () => {
+    //     //监听键盘弹出事件
+    //     Keyboard.addListener('keyboardDidShow', e => {
+    //         this.setState(() => {
+    //             return {
+    //                 webviewAutoHeight:
+    //                     Dimensions.get('screen').height -
+    //                     e.endCoordinates.height,
+    //             };
+    //         });
+    //     });
+    //     //监听键盘隐藏事件
+    //     Keyboard.addListener('keyboardDidHide', e => {
+    //         this.setState(() => {
+    //             return {
+    //                 webviewAutoHeight: Dimensions.get('screen').height,
+    //             };
+    //         });
+    //     });
+    // };
     componentDidMount() {
         this.handAndroidBackBtn();
-        this.handWebviewAutoHeight();
+        // this.handWebviewAutoHeight();
         setTimeout(() => {
             SplashScreen.hide();
         }, 100);
@@ -149,11 +149,14 @@ class App extends React.Component {
         }
     }
     render() {
-        const {webviewUri, appInited, webviewAutoHeight} = this.state;
+        const {webviewUri, appInited} = this.state;
         return (
             <SafeAreaProvider>
                 <SafeAreaConstant />
-                <View style={styles.appWrap}>
+                <KeyboardAvoidingView
+                    enabled
+                    style={styles.appWrap}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                     <StatusBar
                         barStyle="dark-content"
                         translucent={true}
@@ -178,7 +181,7 @@ class App extends React.Component {
                             <TouchableOpacity
                                 onPress={() =>
                                     this.toOtherPage(
-                                        'https://vant-contrib.gitee.io/vant/#/zh-CN',
+                                        'https://vant-contrib.gitee.io/vant/mobile.html#/zh-CN/field',
                                     )
                                 }>
                                 <Text style={{marginBottom: 40}}>
@@ -189,10 +192,7 @@ class App extends React.Component {
                     )}
                     {/* webview第一时间渲染，缩短渲染时间 */}
                     <WebView
-                        style={{
-                            ...styles.webviewStyle,
-                            height: webviewAutoHeight,
-                        }}
+                        style={styles.webviewStyle}
                         ref={this.webview}
                         source={{
                             uri: webviewUri || 'https://baidu.com',
@@ -248,7 +248,7 @@ class App extends React.Component {
                         onMessage={this.onWebviewMessage}
                         onScroll={this.onWebviewScroll}
                     />
-                </View>
+                </KeyboardAvoidingView>
             </SafeAreaProvider>
         );
     }
@@ -257,14 +257,13 @@ class App extends React.Component {
 const {height, width} = Dimensions.get('screen');
 const styles = StyleSheet.create({
     appWrap: {
-        width,
-        height,
+        flex: 1,
         position: 'relative',
         zIndex: 0,
     },
     advertisementView: {
-        width,
-        height,
+        height: '100%',
+        width: '100%',
         lineHeight: 60,
         backgroundColor: '#00b8a9',
         justifyContent: 'center',
@@ -275,7 +274,8 @@ const styles = StyleSheet.create({
         zIndex: 2,
     },
     webviewStyle: {
-        width,
+        height: '100%',
+        width: '100%',
         backgroundColor: 'white',
         position: 'absolute',
         top: 0,
