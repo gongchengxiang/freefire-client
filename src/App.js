@@ -21,37 +21,43 @@ import {
     useSafeAreaInsets,
 } from 'react-native-safe-area-context';
 
-function SafeAreaConstant() {
+function SafeAreaConstant(props) {
     const insets = useSafeAreaInsets();
-    console.log(11, insets);
-    return null;
+    if (typeof props.onSafeAreaInsets === 'function') {
+        props.onSafeAreaInsets(insets);
+    }
 }
 
-//Retrieve safe area insets for root view
-
-// 是否暗黑模式，暂时不支持暗黑模式
+// 是否暗黑模式
 const isDarkMode = Appearance.getColorScheme() === 'dark' && false;
 console.log('isDarkMode：', isDarkMode);
 
 // 主页面渲染
 class App extends React.Component {
     webview = React.createRef();
+    insetsInfo = {
+        insets: {},
+        statusBarHeight: null,
+    };
     state = {
-        advertisementInited: false,
         appInited: false,
     };
     getStatusBarHeight = () => {
         // 状态栏高度
-        if (Platform.OS === 'ios') {
-            NativeModules.StatusBarManager.getHeight(e => {
-                // this.setState(() => ({
-                //     statusBarHeight: e.height || 47,
-                // }));
-            });
-        } else {
-            // this.setState(() => ({
-            //     statusBarHeight: StatusBar.currentHeight,
-            // }));
+        return new Promise(resolve => {
+            if (Platform.OS === 'ios') {
+                NativeModules.StatusBarManager.getHeight(e => {
+                    resolve(e.height);
+                });
+            } else {
+                resolve(StatusBar.currentHeight);
+            }
+        });
+    };
+    onSafeAreaInsets = async insets => {
+        if (!this.insetsInfo.statusBarHeight) {
+            this.insetsInfo = insets;
+            this.insetsInfo.statusBarHeight = await this.getStatusBarHeight();
         }
     };
     onWebviewLoadEnd = data => {
@@ -117,26 +123,6 @@ class App extends React.Component {
             });
         }
     };
-    // handWebviewAutoHeight = () => {
-    //     //监听键盘弹出事件
-    //     Keyboard.addListener('keyboardDidShow', e => {
-    //         this.setState(() => {
-    //             return {
-    //                 webviewAutoHeight:
-    //                     Dimensions.get('screen').height -
-    //                     e.endCoordinates.height,
-    //             };
-    //         });
-    //     });
-    //     //监听键盘隐藏事件
-    //     Keyboard.addListener('keyboardDidHide', e => {
-    //         this.setState(() => {
-    //             return {
-    //                 webviewAutoHeight: Dimensions.get('screen').height,
-    //             };
-    //         });
-    //     });
-    // };
     componentDidMount() {
         this.handAndroidBackBtn();
         // this.handWebviewAutoHeight();
@@ -152,7 +138,7 @@ class App extends React.Component {
         const {webviewUri, appInited} = this.state;
         return (
             <SafeAreaProvider>
-                <SafeAreaConstant />
+                <SafeAreaConstant onSafeAreaInsets={this.onSafeAreaInsets} />
                 <KeyboardAvoidingView
                     enabled
                     style={styles.appWrap}
@@ -234,7 +220,7 @@ class App extends React.Component {
                         menuItems={[]}
                         showsHorizontalScrollIndicator={false}
                         showsVerticalScrollIndicator={false}
-                        applicationNameForUserAgent={'<freefire>'}
+                        applicationNameForUserAgent={'@freefire@'}
                         overScrollMode={'never'}
                         onLoadEnd={this.onWebviewLoadEnd}
                         onError={this.onWebviewLoadError}
@@ -254,7 +240,6 @@ class App extends React.Component {
     }
 }
 
-const {height, width} = Dimensions.get('screen');
 const styles = StyleSheet.create({
     appWrap: {
         flex: 1,
